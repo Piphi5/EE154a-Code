@@ -4,5 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 .vscode/extensions.json
+.vscode/settings.json
 src/EE154-code.code-workspace
 
