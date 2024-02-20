@@ -20,3 +20,7 @@ constexpr uint8_t kSpiCSPin = 5;
 namespace BME680Constants {
 constexpr uint8_t kSpiCSPin = 33;
 }
+
+namespace BME280Constants {
+constexpr uint8_t kSpiCSPin = 25;
+}

@@ -24,13 +24,16 @@ void AirQualitySensor::Update() {
     mBME680.getSensorData(temperature, humidity, pressure, gas);
 }
 float AirQualitySensor::GetTemperature() {
-    return temperature / 100 + 0.01 * (temperature % 100);
+    return temperature;
+    // return temperature / 100 + 0.01 * (temperature % 100);
 }
 float AirQualitySensor::GetHumidity() {
-    return humidity / 1000 + 0.001 * (humidity % 1000);
+    return humidity;
+    // return humidity / 1000 + 0.001 * (humidity % 1000);
 }
 float AirQualitySensor::GetPressure() {
-    return pressure / 100 + 0.01 * (pressure % 100);
+    return pressure;
+    // return pressure / 100 + 0.01 * (pressure % 100);
 }
 float AirQualitySensor::GetGas() {
     return gas / 100 + 0.01 * (gas % 100);

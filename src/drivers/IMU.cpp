@@ -1,5 +1,6 @@
 #include "IMU.h"
 
+#include <Arduino.h>
 #include <Wire.h>
 
 #include "Math.h"

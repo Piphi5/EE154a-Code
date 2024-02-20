@@ -44,17 +44,27 @@ float util::CalcPitchDegrees(float accelX, float accelY, float accelZ) {
 }
 float util::CalcHeadingDegrees(float mx, float my) {
     float heading = 0.0;
-    if (my == 0)
-        heading = (mx < 0) ? M_PI : 0;
-    else
+    if (my == 0) {
+        if (mx < 0) {
+            heading = M_PI;
+        } else {
+            heading = 0.0;
+        }
+    } else {
         heading = atan2(mx, my);
+    }
 
-    heading -= imu::kDeclination * M_PI / 180;
+    heading -= DegToRad(imu::kDeclination);
 
-    if (heading > M_PI)
+    if (heading > M_PI) {
         heading -= (2 * M_PI);
-    else if (heading < -M_PI)
+    } else if (heading < -M_PI) {
         heading += (2 * M_PI);
+    }
 
     return RadToDeg(heading);
+}
+
+float util::DegToRad(float degrees) {
+    return M_PI * degrees / 180.0;
 }

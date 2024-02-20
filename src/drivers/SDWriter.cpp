@@ -15,10 +15,9 @@ void SDWriter::Setup() {
     SPI.setDataMode(SPI_MODE0);
     SPI.setClockDivider(SPI_CLOCK_DIV2);
 
-    if (!SD.begin(kChipSelectPin)) {
+    while (!SD.begin(kChipSelectPin)) {
         Serial.println("Card failed, or not present");
         // don't do anything more:
-        return;
     }
     digitalWrite(kChipSelectPin, HIGH);
 }
@@ -35,7 +34,7 @@ void SDWriter::AppendFile(String txt) {
     SDout.close();
 }
 
-void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent) {
+void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent) {
     File SDout = SD.open(mFile, FILE_APPEND);
     SDout.print(t);
     SDout.print(",");
@@ -44,6 +43,8 @@ void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double e
     SDout.print(yPos);
     SDout.print(",");
     SDout.print(externalPressure);
+    SDout.print(",");
+    SDout.print(internalPressure);
     SDout.print(",");
     SDout.print(altitude);
     SDout.print(",");

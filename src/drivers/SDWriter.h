@@ -9,7 +9,7 @@ class SDWriter {
     void OverwriteFile(String txt);
     void AppendFile(String txt);
 
-    void WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent);
+    void WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent);
 
    private:
     const String mFile;
