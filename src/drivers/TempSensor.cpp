@@ -1,26 +1,41 @@
 #include "TempSensor.h"
 
-#include "Constants.h"
+#include <Arduino.h>
 
-TempSensor::TempSensor(uint8_t CS_pin) : kCSPort(CS_pin){};
-void TempSensor::Setup() {
-    pinMode(kCSPort, OUTPUT);
-    digitalWrite(kCSPort, LOW);
-    SPI.begin(spi::kSCK, spi::kMISO, spi::kMOSI, kCSPort);
-    while (!mBME280.beginSPI(kCSPort))  // Start using hardware SPI protocol
+#include "Constants.h"
+#include "Math.h"
+#include "ResetUtil.h"
+
+TempSensor::TempSensor(uint8_t addr) : kAddr(addr), mTimer() {
+}
+bool TempSensor::Setup() {
+    // SPI.begin(spi::kSCK, spi::kMISO, spi::kMOSI, kCSPort);
+    pinMode(i2c::kSDA, INPUT);
+    pinMode(i2c::kSCL, INPUT);
+    mTimer.StartTimer(millis());
+    Wire.begin();
+    while (mTimer.Wait(mBME680.begin(I2C_STANDARD_MODE, kAddr), millis()))  // Start using hardware SPI protocol
     {
-        Serial.println("-  Unable to find BME280. Waiting 3 seconds.");
-        delay(3000);
+        util::ResetI2CPins(Wire);
+        Serial.println("-  Unable to find BME680. Attempting reset. Waiting 0.5 seconds.");
+        delay(500);
     }  // of loop until device is located
+    mBME680.setOversampling(TemperatureSensor, Oversample16);
+    mBME680.setOversampling(HumiditySensor, Oversample16);
+    mBME680.setOversampling(PressureSensor, Oversample16);
+    mBME680.setIIRFilter(IIR16);
+
+    return !mTimer.TimedOut();
 }
 void TempSensor::Update() {
+    mBME680.getSensorData(temperature, humidity, pressure, gas);
 }
 float TempSensor::GetTemperature() {
-    return mBME280.readTempC();
+    return util::ConvertIntToDec(temperature, 2);
 }
 float TempSensor::GetHumidity() {
-    return mBME280.readFloatHumidity();
+    return util::ConvertIntToDec(humidity, 3);
 }
 float TempSensor::GetPressure() {
-    return mBME280.readFloatPressure();
+    return pressure;  //  util::ConvertIntToDec(pressure, 2);
 }

@@ -7,7 +7,7 @@ AirQualitySensor::AirQualitySensor(uint8_t spiCSPin) : kSPICSPin(spiCSPin) {}
 void AirQualitySensor::Setup() {
     pinMode(kSPICSPin, OUTPUT);
     digitalWrite(kSPICSPin, LOW);
-    SPI.begin(spi::kSCK, spi::kMISO, spi::kMOSI, kSPICSPin);
+    // SPI.begin(kSPICSPin);
     while (!mBME680.begin(kSPICSPin))  // Start using hardware SPI protocol
     {
         Serial.println("-  Unable to find BME680. Waiting 3 seconds.");
@@ -21,7 +21,9 @@ void AirQualitySensor::Setup() {
     digitalWrite(kSPICSPin, HIGH);
 }
 void AirQualitySensor::Update() {
+    digitalWrite(kSPICSPin, LOW);
     mBME680.getSensorData(temperature, humidity, pressure, gas);
+    digitalWrite(kSPICSPin, HIGH);
 }
 float AirQualitySensor::GetTemperature() {
     return temperature;

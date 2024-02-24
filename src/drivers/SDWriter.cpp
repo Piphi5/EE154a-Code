@@ -4,79 +4,101 @@
 #include <SPI.h>
 
 #include "Constants.h"
+#include "ResetUtil.h"
+#include "StrUtil.h"
 
-SDWriter::SDWriter(String filename, uint8_t chipSelect) : mFile(filename), kChipSelectPin(chipSelect){};
-
-void SDWriter::Setup() {
+SDWriter::SDWriter(std::string prefix, std::string suffix, uint8_t chipSelect) : mPrefix(prefix), mSuffix(suffix), kChipSelectPin(chipSelect), mTimer(){};
+#define FILE_APPEND (O_APPEND | O_WRITE)
+bool SDWriter::Setup() {
     pinMode(kChipSelectPin, OUTPUT);
-
     digitalWrite(kChipSelectPin, LOW);
-    SPI.begin(spi::kSCK, spi::kMISO, spi::kMOSI, kChipSelectPin);
-    SPI.setDataMode(SPI_MODE0);
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
-
-    while (!SD.begin(kChipSelectPin)) {
-        Serial.println("Card failed, or not present");
-        // don't do anything more:
+    // SPI.begin(spi::kSCK, spi::kMISO, spi::kMOSI, kChipSelectPin);
+    // SPI.setDataMode(SPI_MODE0);
+    // SPI.setClockDivider(SPI_CLOCK_DIV2);
+    // SPI.begin();
+    mTimer.StartTimer(millis());
+    SPI.begin();
+    while (mTimer.Wait(SD.begin(kChipSelectPin), millis())) {
+        Serial.println("Card failed, or not present or system error. Will try to reset the pins in the meantime (0.5 seconds).");
+        util::ResetSPIPins();
+        delay(500);
     }
+    digitalWrite(kChipSelectPin, HIGH);
+
+    auto filename = util::GetRandomizedFilename(mPrefix, mSuffix);
+    mFile = String{filename.c_str()};
+    Serial.println(mFile);
+
+    return !mTimer.TimedOut();
+}
+
+void SDWriter::ClearFile() {
+    digitalWrite(kChipSelectPin, LOW);
+    File SDout = SD.open(mFile, FILE_WRITE | O_TRUNC);
+    SDout.close();
     digitalWrite(kChipSelectPin, HIGH);
 }
 
 void SDWriter::OverwriteFile(String txt) {
+    digitalWrite(kChipSelectPin, LOW);
     File SDout = SD.open(mFile, FILE_WRITE);
     SDout.println(txt);
     SDout.close();
+    digitalWrite(kChipSelectPin, HIGH);
 }
 
 void SDWriter::AppendFile(String txt) {
-    File SDout = SD.open(mFile, FILE_APPEND);
+    File SDout = SD.open(mFile, FILE_WRITE);
     SDout.print(txt);
     SDout.close();
 }
 
 void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent) {
-    File SDout = SD.open(mFile, FILE_APPEND);
+    digitalWrite(kChipSelectPin, LOW);
+    File SDout = SD.open(mFile, FILE_WRITE);
     SDout.print(t);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(xPos);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(yPos);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(externalPressure);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(internalPressure);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(altitude);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(humidity);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(internalTemp);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(externalTemp);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(yaw);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(pitch);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(roll);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(yawRate);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(pitchRate);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(rollRate);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(xAccel);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(yAccel);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(zAccel);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(compassHeading);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(battTemp);
-    SDout.print(",");
+    SDout.print(F(","));
     SDout.print(battCurrent);
     SDout.println();
     SDout.close();
+
+    digitalWrite(kChipSelectPin, HIGH);
 }

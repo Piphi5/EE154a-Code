@@ -13,10 +13,10 @@ class AirQualitySensor {
     float GetGas();
 
    private:
-    int32_t temperature;
-    int32_t humidity;
-    int32_t pressure;
-    int32_t gas;
+    int32_t temperature = 2500;
+    int32_t humidity = 90000;
+    int32_t pressure = 90000;
+    int32_t gas = 10;
     uint8_t kSPICSPin;
     BME680_Class mBME680;
 };

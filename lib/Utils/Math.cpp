@@ -3,16 +3,37 @@
 #include <math.h>
 
 #include "Constants.h"
-
 using namespace util;
 
 float util::GetBattTemp(uint16_t analogValue) {
+    // https://www.thinksrs.com/downloads/programs/therm%20calc/ntccalibrator/ntccalculator.html to check math
     // TODO Labelson link the website for getting this
-    return 1 / (battery::kA + battery::kB * log(analogValue / battery::kResolution)) + 25.0;  // normalized around 25 deg C
+    // First need to solve for resistance of thermistor: https://www.circuitbasics.com/arduino-thermistor-temperature-sensor-tutorial/
+    // float R = 1.0 / (battery::kResolution / ((float)analogValue) - 1);
+    float average = battery::kResolution / analogValue - 1;
+    // average = battery::kThermistorResistor / average;
+    // Serial.print("Thermistor resistance ");
+    // Serial.println(average);
+
+    float steinhart = average;
+    // steinhart = average / battery::kThermistorResistor;  // (R/Ro)
+    steinhart = log(steinhart);        // ln(R/Ro)
+    steinhart /= battery::kB;          // 1/B * ln(R/Ro)
+    steinhart += 1.0 / (25 + 273.15);  // + (1/To)
+    steinhart = 1.0 / steinhart;       // Invert
+    steinhart -= 273.15;               // convert absolute temp to C
+    // Serial.println(R);
+
+    return steinhart;
 }
 
 float util::GetBattCurrent(uint16_t analogValue1, uint16_t analogValue2) {
     return (battery::kVoltage * (analogValue1 - analogValue2) / battery::kResolution) * battery::kScaleFactor;
+}
+
+float util::ConvertIntToDec(int32_t num, int precision) {
+    int scale = ((int)pow(10, precision));
+    return num / scale + 1.0 / scale * (num % scale);
 }
 
 float util::CalcCompassHeading(float magX, float magY, float magZ) {
@@ -34,7 +55,7 @@ float util::CalcAccelFromG(float accel) {
     return accel * 9.807;
 }
 float util::RadToDeg(float radians) {
-    return radians * 180.0 / M_PI;
+    return radians * 180.0 / util::pi;
 }
 float util::CalcRollDegrees(float accelY, float accelZ) {
     return RadToDeg(atan2(accelY, accelZ));
@@ -46,7 +67,7 @@ float util::CalcHeadingDegrees(float mx, float my) {
     float heading = 0.0;
     if (my == 0) {
         if (mx < 0) {
-            heading = M_PI;
+            heading = util::pi;
         } else {
             heading = 0.0;
         }
@@ -56,15 +77,15 @@ float util::CalcHeadingDegrees(float mx, float my) {
 
     heading -= DegToRad(imu::kDeclination);
 
-    if (heading > M_PI) {
-        heading -= (2 * M_PI);
-    } else if (heading < -M_PI) {
-        heading += (2 * M_PI);
+    if (heading > util::pi) {
+        heading -= (2 * util::pi);
+    } else if (heading < -util::pi) {
+        heading += (2 * util::pi);
     }
 
     return RadToDeg(heading);
 }
 
 float util::DegToRad(float degrees) {
-    return M_PI * degrees / 180.0;
+    return util::pi * degrees / 180.0;
 }

@@ -13,8 +13,8 @@ void Battery::Setup() {
 }
 
 float Battery::GetBattCurrent() {
-    return util::GetBattCurrent(kCurrentPin1, kCurrentPin2);
+    return util::GetBattCurrent(analogRead(kCurrentPin1), analogRead(kCurrentPin2));
 }
 float Battery::GetBattTemp() {
-    return util::GetBattTemp(kThermistorPin);
+    return util::GetBattTemp(analogRead(kThermistorPin));
 }

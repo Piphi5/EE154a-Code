@@ -1,10 +1,12 @@
 #pragma once
 #include <SparkFunLSM9DS1.h>
 
+#include "TimeoutTimer.h"
+
 class IMU {
    public:
     IMU();
-    void Setup();
+    bool Setup();
     void UpdateLoop();
     float getPitch();
     float getRoll();
@@ -18,4 +20,5 @@ class IMU {
 
    private:
     LSM9DS1 imu;
+    TimeoutTimer mTimer;
 };

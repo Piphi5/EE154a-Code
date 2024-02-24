@@ -4,15 +4,20 @@
 #include <Wire.h>
 
 #include "Math.h"
+#include "ResetUtil.h"
 
-IMU::IMU() {}
+IMU::IMU() : mTimer() {}
 
-void IMU::Setup() {
-    Wire.begin();
-    while (imu.begin(107U, 30U, Wire) == false)  // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
+bool IMU::Setup() {
+    Wire1.begin();
+    mTimer.StartTimer(millis());
+    while (mTimer.Wait(imu.begin(107U, 30U, Wire1), millis()))  // with no arguments, this uses default addresses (AG:0x6B, M:0x1E) and i2c port (Wire).
     {
-        Serial.println("Failed to communicate with LSM9DS1.");
+        Serial.println("Failed to communicate with LSM9DS1. Attempting a reset of the I2c Bus. Waiting 0.5 seconds");
+        util::ResetI2CPins(Wire1);
+        delay(500);
     }
+    return !mTimer.TimedOut();
 }
 void IMU::UpdateLoop() {
     if (imu.gyroAvailable()) {
@@ -46,21 +51,21 @@ float IMU::getHeading() {
     return util::CalcHeadingDegrees(imu.mx, imu.my);
 }
 float IMU::getXAccel() {
-    return imu.ax;
+    return imu.calcAccel(imu.ax);
 }
 float IMU::getYAccel() {
-    return imu.ay;
+    return imu.calcAccel(imu.ay);
 }
 float IMU::getZAccel() {
-    return imu.az;
+    return imu.calcAccel(imu.az);
 }
 
 float IMU::getPitchRate() {
-    return imu.gy;
+    return imu.calcGyro(imu.gy);
 }
 float IMU::getRollRate() {
-    return imu.gx;
+    return imu.calcGyro(imu.gx);
 }
 float IMU::getYawRate() {
-    return imu.gz;
+    return imu.calcGyro(imu.gz);
 }
