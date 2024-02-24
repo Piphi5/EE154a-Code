@@ -4,6 +4,8 @@
 #include "drivers/AirQualitySensor.h"
 #include "drivers/Battery.h"
 // #include "drivers/Constants.h"
+#include <watchdog.h>
+
 #include "drivers/GPS.h"
 #include "drivers/IMU.h"
 #include "drivers/SDWriter.h"
@@ -19,6 +21,10 @@ GPS gps;
 
 StatusManager statman{LEDConstants::kSDCardLED, LEDConstants::kIMULED, LEDConstants::kTempLED, LEDConstants::kBatteryReaderLED, LEDConstants::kGPSLED, LEDConstants::kHearbeat};
 #include <Arduino.h>
+
+void watchdogSetup(void) {
+    return;
+}
 
 void setup() {
     Serial.begin(9600);
@@ -57,6 +63,9 @@ void setup() {
     batterySensor.Setup();
     statman.BatterySuccess(batterySensor.GetBattCurrent(), batterySensor.GetBattTemp());
 
+    watchdogSetup();
+    watchdogEnable(5000);  // Watchdog with 5s timeout
+
     sdWriter.ClearFile();
     sdWriter.OverwriteFile("");
 }
@@ -69,4 +78,5 @@ void loop() {
     bme680External.Update();
     statman.ToggleHeartbeat();
     sdWriter.WriteDataLine(millis(), gps.GetLatitude(), gps.GetLongitude(), bme680External.GetPressure(), bme680Internal.GetPressure(), gps.GetAltitude(), bme680External.GetHumidity(), bme680Internal.GetTemperature(), bme680External.GetTemperature(), imuSensor.getHeading(), imuSensor.getPitch(), imuSensor.getRoll(), imuSensor.getYawRate(), imuSensor.getRollRate(), imuSensor.getPitchRate(), imuSensor.getXAccel(), imuSensor.getYAccel(), imuSensor.getZAccel(), imuSensor.getHeading(), batterySensor.GetBattTemp(), batterySensor.GetBattCurrent());
+    watchdogReset();  // Pat the dog
 }
