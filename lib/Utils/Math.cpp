@@ -11,17 +11,18 @@ float util::GetBattTemp(uint16_t analogValue) {
     // First need to solve for resistance of thermistor: https://www.circuitbasics.com/arduino-thermistor-temperature-sensor-tutorial/
     // float R = 1.0 / (battery::kResolution / ((float)analogValue) - 1);
     float average = battery::kResolution / analogValue - 1;
+    average = battery::kThermFixedResistor / average;
     // average = battery::kThermistorResistor / average;
     // Serial.print("Thermistor resistance ");
     // Serial.println(average);
 
     float steinhart = average;
-    // steinhart = average / battery::kThermistorResistor;  // (R/Ro)
-    steinhart = log(steinhart);        // ln(R/Ro)
-    steinhart /= battery::kB;          // 1/B * ln(R/Ro)
-    steinhart += 1.0 / (25 + 273.15);  // + (1/To)
-    steinhart = 1.0 / steinhart;       // Invert
-    steinhart -= 273.15;               // convert absolute temp to C
+    steinhart = average / battery::kThermistorResistor;  // (R/Ro)
+    steinhart = log(steinhart);                          // ln(R/Ro)
+    steinhart /= battery::kB;                            // 1/B * ln(R/Ro)
+    steinhart += 1.0 / (25 + 273.15);                    // + (1/To)
+    steinhart = 1.0 / steinhart;                         // Invert
+    steinhart -= 273.15;                                 // convert absolute temp to C
     // Serial.println(R);
 
     return steinhart;

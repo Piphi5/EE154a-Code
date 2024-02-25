@@ -24,6 +24,7 @@ namespace battery {
 constexpr float kResolution = 1023.0;
 constexpr float kVoltage = 3.3;
 constexpr float kThermistorResistor = 10000;  // ohms
+constexpr float kThermFixedResistor = 10000;  // ohms
 constexpr float kScaleFactor = 1000.0 * 5.7 / 10.0;
 constexpr float kA = 10000.0;
 constexpr float kB = 3950.0;
