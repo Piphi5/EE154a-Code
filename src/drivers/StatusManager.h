@@ -10,7 +10,7 @@ class StatusManager {
     void SDSuccess();
     void IMUSuccess();
     void TempSuccess();
-    void BatterySuccess(float battTemp, float battCurr);
+    void BatterySuccess();
     void GPSSuccess();
     void ToggleHeartbeat();
 

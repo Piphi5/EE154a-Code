@@ -37,19 +37,26 @@ float util::ConvertIntToDec(int32_t num, int precision) {
     return num / scale + 1.0 / scale * (num % scale);
 }
 
-float util::CalcCompassHeading(float magX, float magY, float magZ) {
-    // https://cdn-shop.adafruit.com/datasheets/AN203_Compass_Heading_Using_Magnetometers.pdf
-    if (magY > 0) {
-        return 90.0 - RadToDeg(atan2(magX, magY));
-
-    } else if (magY < 0) {
-        return 270 - RadToDeg(atan2(magX, magY));
+std::string util::CalcCompassHeading(float heading) {
+    // https://digilent.com/blog/how-to-convert-magnetometer-data-into-compass-heading/
+    if (heading > 337.25 || heading < 22.5) {
+        return "North";
+    } else if (heading >= 292.5 && heading <= 337.25) {
+        return "North West";
+    } else if (heading >= 247.5 && heading <= 292.5) {
+        return "West";
+    } else if (heading >= 202.5 && heading <= 247.5) {
+        return "South West";
+    } else if (heading >= 157.5 && heading <= 202.5) {
+        return "South";
+    } else if (heading >= 112.5 && heading <= 157.5) {
+        return "South East";
+    } else if (heading >= 67.5 && heading <= 112.5) {
+        return "East";
+    } else if (heading >= 0 && heading <= 67.15) {
+        return "North East";
     } else {
-        if (magX < 0) {
-            return 180.0;
-        } else {
-            return 0.0;
-        }
+        return "None";
     }
 }
 float util::CalcAccelFromG(float accel) {
@@ -66,22 +73,22 @@ float util::CalcPitchDegrees(float accelX, float accelY, float accelZ) {
 }
 float util::CalcHeadingDegrees(float mx, float my) {
     float heading = 0.0;
-    if (my == 0) {
-        if (mx < 0) {
-            heading = util::pi;
+    if (mx == 0) {
+        if (my < 0) {
+            heading = util::pi / 2.0;
         } else {
             heading = 0.0;
         }
     } else {
-        heading = atan2(mx, my);
+        heading = atan2(my, mx);
     }
 
     heading -= DegToRad(imu::kDeclination);
 
-    if (heading > util::pi) {
-        heading -= (2 * util::pi);
-    } else if (heading < -util::pi) {
-        heading += (2 * util::pi);
+    if (heading > 2 * util::pi) {
+        heading -= 2 * util::pi;
+    } else if (heading < 0) {
+        heading += 2 * util::pi;
     }
 
     return RadToDeg(heading);

@@ -6,6 +6,7 @@ class Battery {
     void Setup();
     float GetBattCurrent();
     float GetBattTemp();
+    bool ValidMeasurements();
 
    private:
     const uint8_t kThermistorPin;

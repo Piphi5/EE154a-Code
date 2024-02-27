@@ -28,7 +28,7 @@ void StatusManager::TempSuccess() {
     digitalWrite(kTempPin, HIGH);
 }
 
-void StatusManager::BatterySuccess(float battTemp, float battCurr) {
+void StatusManager::BatterySuccess() {
     digitalWrite(kBatteryPin, HIGH);
 }
 void StatusManager::GPSSuccess() {

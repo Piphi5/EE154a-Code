@@ -18,3 +18,9 @@ float Battery::GetBattCurrent() {
 float Battery::GetBattTemp() {
     return util::GetBattTemp(analogRead(kThermistorPin));
 }
+
+bool Battery::ValidMeasurements() {
+    auto curr = GetBattCurrent();
+    auto temp = GetBattTemp();
+    return curr > 0 && curr < 500 && temp < 50.0;
+}

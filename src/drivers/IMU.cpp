@@ -50,6 +50,11 @@ float IMU::getRoll() {
 float IMU::getHeading() {
     return util::CalcHeadingDegrees(imu.mx, imu.my);
 }
+
+std::string IMU::getCompassHeading() {
+    auto heading = getHeading();
+    return util::CalcCompassHeading(heading);
+}
 float IMU::getXAccel() {
     return imu.calcAccel(imu.ax);
 }

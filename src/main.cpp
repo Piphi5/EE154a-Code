@@ -61,13 +61,15 @@ void setup() {
 
     Serial.println("Initializing battery stuff");
     batterySensor.Setup();
-    statman.BatterySuccess(batterySensor.GetBattCurrent(), batterySensor.GetBattTemp());
+    if (batterySensor.ValidMeasurements()) {
+        statman.BatterySuccess();
+    }
 
     watchdogSetup();
     watchdogEnable(5000);  // Watchdog with 5s timeout
 
     sdWriter.ClearFile();
-    sdWriter.OverwriteFile("");
+    sdWriter.WriteDataHeader();
 }
 
 void loop() {
@@ -77,6 +79,8 @@ void loop() {
     bme680Internal.Update();
     bme680External.Update();
     statman.ToggleHeartbeat();
-    sdWriter.WriteDataLine(millis(), gps.GetLatitude(), gps.GetLongitude(), bme680External.GetPressure(), bme680Internal.GetPressure(), gps.GetAltitude(), bme680External.GetHumidity(), bme680Internal.GetTemperature(), bme680External.GetTemperature(), imuSensor.getHeading(), imuSensor.getPitch(), imuSensor.getRoll(), imuSensor.getYawRate(), imuSensor.getRollRate(), imuSensor.getPitchRate(), imuSensor.getXAccel(), imuSensor.getYAccel(), imuSensor.getZAccel(), imuSensor.getHeading(), batterySensor.GetBattTemp(), batterySensor.GetBattCurrent());
+    // Serial.println(imuSensor.getCompassHeading().c_str());
+    // Serial.println(imuSensor.getHeading());
+    sdWriter.WriteDataLine(millis(), gps.GetLatitude(), gps.GetLongitude(), bme680External.GetPressure(), bme680Internal.GetPressure(), gps.GetAltitude(), bme680External.GetHumidity(), bme680Internal.GetTemperature(), bme680External.GetTemperature(), imuSensor.getHeading(), imuSensor.getPitch(), imuSensor.getRoll(), imuSensor.getYawRate(), imuSensor.getRollRate(), imuSensor.getPitchRate(), imuSensor.getXAccel(), imuSensor.getYAccel(), imuSensor.getZAccel(), imuSensor.getCompassHeading(), batterySensor.GetBattTemp(), batterySensor.GetBattCurrent());
     watchdogReset();  // Pat the dog
 }

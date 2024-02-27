@@ -13,7 +13,8 @@ class SDWriter {
     void AppendFile(String txt);
     void ClearFile();
 
-    void WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent);
+    void WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, std::string compassHeading, double battTemp, double battCurrent);
+    void WriteDataHeader();
 
    private:
     const std::string mPrefix;

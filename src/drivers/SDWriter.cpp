@@ -53,8 +53,9 @@ void SDWriter::AppendFile(String txt) {
     SDout.close();
 }
 
-void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, double compassHeading, double battTemp, double battCurrent) {
+void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double externalPressure, double internalPressure, double altitude, double humidity, double internalTemp, double externalTemp, double yaw, double pitch, double roll, double yawRate, double pitchRate, double rollRate, double xAccel, double yAccel, double zAccel, std::string compassHeading, double battTemp, double battCurrent) {
     digitalWrite(kChipSelectPin, LOW);
+    String compass = String{compassHeading.c_str()};
     File SDout = SD.open(mFile, FILE_WRITE);
     SDout.print(t);
     SDout.print(F(","));
@@ -92,7 +93,7 @@ void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double e
     SDout.print(F(","));
     SDout.print(zAccel);
     SDout.print(F(","));
-    SDout.print(compassHeading);
+    SDout.print(compass);
     SDout.print(F(","));
     SDout.print(battTemp);
     SDout.print(F(","));
@@ -101,4 +102,8 @@ void SDWriter::WriteDataLine(unsigned long t, double xPos, double yPos, double e
     SDout.close();
 
     digitalWrite(kChipSelectPin, HIGH);
+}
+
+void SDWriter::WriteDataHeader() {
+    OverwriteFile("Time (millis), Latitude, Longitude, External Pressure (pascals), Internal Pressure (pascals), Altitude (m), Humidity (percent), Internal Temperature (C), External Temperature (C), Yaw (deg), Pitch (deg), Roll (deg), Yaw Rate (deg/s), Pitch Rate (deg/s), Roll Rate (deg/s), X-axis Acceleration (g), Y-axis Acceleration (g), Z-axis Acceleration (g), Battery Temperature (C), Battery Current (mA)");
 }
